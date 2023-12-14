@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "*.arb": "json",
+        "record.h": "c"
+    }
+}
