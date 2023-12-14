@@ -24,19 +24,21 @@ struct indexed_data
 struct indexed_data *mk_indexed(struct record *rs, int n)
 {
     struct indexed_data *indexed_data = malloc(sizeof(struct indexed_data));
-    struct index_record *index_record = malloc(sizeof(struct index_record) * n);
+    struct index_record *index_records = malloc(sizeof(struct index_record) * n);
     for (int i = 0; i < n; i++)
     {
-        index_record->record = &rs[i];
-        index_record->osm_id = rs[i].osm_id;
+        index_records[i].record = &rs[i];
+        index_records[i].osm_id = rs[i].osm_id;
     }
-    indexed_data->irs = index_record;
+    indexed_data->irs = index_records;
     indexed_data->n = n;
     return indexed_data;
 }
 
 void free_indexed(struct indexed_data *data)
 {
+
+    free(data->irs);
     free(data);
 }
 
