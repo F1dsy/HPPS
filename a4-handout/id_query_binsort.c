@@ -56,7 +56,8 @@ void free_indexed(struct indexed_data *data)
 }
 const struct record *lookup_indexed(struct indexed_data *data, int64_t needle)
 {
-    return bsearch(&needle, data->irs, data->n, sizeof(struct index_record), compare);
+    struct index_record *ir = bsearch(&needle, data->irs, data->n, sizeof(struct index_record), compare);
+    return ir->record;
 }
 
 int main(int argc, char **argv)
