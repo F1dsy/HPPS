@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "*.arb": "json",
-        "record.h": "c"
+        "record.h": "c",
+        "float.h": "c"
     }
 }

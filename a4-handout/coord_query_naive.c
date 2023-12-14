@@ -6,6 +6,7 @@
 #include <errno.h>
 #include <assert.h>
 #include <math.h>
+#include <float.h>
 
 #include "record.h"
 #include "coord_query.h"
@@ -42,7 +43,7 @@ const struct record *lookup_naive(struct naive_data *data, double lon, double la
 {
   // TODO
   struct record *closest_record;
-  double closest_record_distance;
+  double closest_record_distance = DBL_MAX;
   for (int i = 0; i < data->n; i++)
   {
     double current_distance = euclidean_distance(lon, lat, data->rs[i].lon, data->rs[i].lat);
@@ -51,6 +52,7 @@ const struct record *lookup_naive(struct naive_data *data, double lon, double la
       closest_record = &data->rs[i];
     }
   }
+  return closest_record;
 }
 
 int main(int argc, char **argv)
