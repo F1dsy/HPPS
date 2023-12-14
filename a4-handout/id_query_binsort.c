@@ -9,19 +9,6 @@
 #include "record.h"
 #include "id_query.h"
 
-int *compare(void *data1, void *data2)
-{
-    struct index_record *ir1 = (struct index_record *)data1;
-    struct index_record *ir2 = (struct index_record *)data2;
-
-    return (ir1->osm_id - ir2->osm_id);
-}
-
-void sort_by_osm_id(struct indexed_data *data)
-{
-    qsort(data->irs, data->n, sizeof(struct index_record), compare);
-}
-
 struct index_record
 {
     int64_t osm_id;
@@ -33,6 +20,19 @@ struct indexed_data
     struct index_record *irs;
     int n;
 };
+
+int compare(const void *data1, const void *data2)
+{
+    struct index_record *ir1 = (struct index_record *)data1;
+    struct index_record *ir2 = (struct index_record *)data2;
+
+    return (int)(ir1->osm_id - ir2->osm_id);
+}
+
+void sort_by_osm_id(struct indexed_data *data)
+{
+    qsort(data->irs, data->n, sizeof(struct index_record), compare);
+}
 
 struct indexed_data *mk_indexed(struct record *rs, int n)
 {
@@ -51,10 +51,11 @@ struct indexed_data *mk_indexed(struct record *rs, int n)
 
 void free_indexed(struct indexed_data *data)
 {
+    free(data);
 }
 const struct record *lookup_indexed(struct indexed_data *data, int64_t needle)
 {
-    return bsearch(needle, data->irs, data->n, sizeof(struct index_record), compare);
+    return bsearch(&needle, data->irs, data->n, sizeof(struct index_record), compare);
 }
 
 int main(int argc, char **argv)
