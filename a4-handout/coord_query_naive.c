@@ -50,6 +50,7 @@ const struct record *lookup_naive(struct naive_data *data, double lon, double la
     if (current_distance < closest_record_distance)
     {
       closest_record = &data->rs[i];
+      closest_record_distance = current_distance;
     }
   }
   return closest_record;
