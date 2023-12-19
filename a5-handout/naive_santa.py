@@ -67,7 +67,7 @@ def santa(host, port, num_reindeer, elf_group):
 
             elf_counter.append((elf_host, elf_port))
 
-            if len(elf_counter) >= elf_group:
+            if len(elf_counter) == elf_group:
                 print("Santa is solving the elves problem")
                 for host, port in elf_counter:
                     sending_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
