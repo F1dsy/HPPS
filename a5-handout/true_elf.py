@@ -33,12 +33,37 @@ def wait_for_reply(me, listening_socket, my_host, my_port):
     # TODO You must implement how a reindeer will wait for a reply from the 
     # porch. 
     msg = b''
-    while msg != MSG_SORT_PROBLEM:
+    while msg != MSG_SORT_PROBLEM: 
+        # Read from the connection
         msg = connection.recv(MAX_MSG_LEN)
-        if msg != MSG_SORT_PROBLEM:
+        body: list = []
+        if b'-' in msg:
+            body: list = msg[msg.index(b'-')+1:]
+            msg = msg[:msg.index(b'-')]
+        # If we get something we didn't expect then abort
+        if msg != MSG_SORT_PROBLEM and msg != MSG_NOTIFY:
             print(f"Elf {me} recieved an unknown instruction")
             exit()
-    print(f"Elf {me} is getting help")
+
+        if msg == MSG_NOTIFY:
+            host_list = body.split(b'-')
+            santa_host = host_list[0][:host_list[0].index(b':')].decode()
+            santa_port = int( host_list[0][host_list[0].index(b':')+1:].decode())
+            sending_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sending_socket.connect((santa_host, santa_port))
+            sending_socket.sendall(MSG_SORT_PROBLEM)
+            sending_socket.close()
+
+           
+            for elf in host_list[1:]:
+                host = elf[:elf.index(b':')].decode()
+                port = int(elf[elf.index(b':')+1:].decode())
+                sending_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                sending_socket.connect((host, port))
+                sending_socket.sendall(MSG_SORT_PROBLEM)
+                sending_socket.close()
+            msg = MSG_DELIVER_PRESENTS
+            
 
 
 # Base elf function, to be called as a process

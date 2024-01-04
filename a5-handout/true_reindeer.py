@@ -46,23 +46,24 @@ def wait_for_reply(me, listening_socket, my_host, my_port):
             body: list = msg[msg.index(b'-')+1:]
             msg = msg[:msg.index(b'-')]
         # If we get something we didn't expect then abort
-        if msg != MSG_DELIVER_PRESENTS or msg != MSG_NOTIFY:
+        if msg != MSG_DELIVER_PRESENTS and msg != MSG_NOTIFY:
             print(f"Reindeer {me} recieved an unknown instruction")
             exit()
 
-        host_list = body.split(b'-')
-        santa_host = host_list[0][:body.index(b':')].decode()
-        santa_port = int( host_list[0][body.index(b':')+1:].decode())
-        reindeers = []
-        for reindeer in host_list[1:]:
-            reindeers.append((reindeer[:body.index(b':')],reindeer[body.index(b':')+1:]))
-
         if msg == MSG_NOTIFY:
+            host_list = body.split(b'-')
+            santa_host = host_list[0][:host_list[0].index(b':')].decode()
+            santa_port = int( host_list[0][host_list[0].index(b':')+1:].decode())
             sending_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             sending_socket.connect((santa_host, santa_port))
             sending_socket.sendall(MSG_DELIVER_PRESENTS)
             sending_socket.close()
-            for host, port in reindeers:
+
+           
+            for reindeer in host_list[1:]:
+                host = reindeer[:reindeer.index(b':')].decode()
+                port = int(reindeer[reindeer.index(b':')+1:].decode())
+                sending_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 sending_socket.connect((host, port))
                 sending_socket.sendall(MSG_DELIVER_PRESENTS)
                 sending_socket.close()
