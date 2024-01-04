@@ -44,11 +44,6 @@ class SantaHandler(socketserver.StreamRequestHandler):
                     self.server.reindeer_counter = []
         # This message will be sent by any elves that encounter a problem
         elif msg == MSG_PROBLEM:
-            # TODO You need to implement some code here that will message elves
-            # when enough of them have a problem. As in the case of reindeer 
-            # delivering presents, you just need to get santa and the relevent 
-            # elves printing a message at approximately the same time.
-           
             elf_host = body[:body.index(b':')].decode()
             elf_port = int(body[body.index(b':')+1:].decode())
 
