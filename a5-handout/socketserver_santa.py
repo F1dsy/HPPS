@@ -20,6 +20,50 @@ class SantaHandler(socketserver.StreamRequestHandler):
         # Checkin function will 'check in' with a checkin process, if one is 
         # available. This can be removed if you are confident in your answer 
         # and want to avoid the slowdown it adds
+        # If the message has an additional payload, then separate the variables
+        if b'-' in msg:
+            body = msg[msg.index(b'-')+1:]
+            msg = msg[:msg.index(b'-')]
+
+        # This message will be sent by each reindeer in turn, as they finish 
+        # their holiday
+        if msg == MSG_HOLIDAY_OVER:
+            reindeer_host = body[:body.index(b':')].decode()
+            reindeer_port = int(body[body.index(b':')+1:].decode())
+
+            with self.server.lock:
+                self.server.reindeer_counter.append((reindeer_host, reindeer_port))
+
+                if len(self.server.reindeer_counter) == self.server.num_reindeer:
+                    print(f"Santa is delivering presents with all {self.server.num_reindeer} reindeer")
+                    for host, port in self.server.reindeer_counter:
+                        sending_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                        sending_socket.connect((host, port))
+                        sending_socket.sendall(MSG_DELIVER_PRESENTS)
+                        sending_socket.close()
+                    self.server.reindeer_counter = []
+        # This message will be sent by any elves that encounter a problem
+        elif msg == MSG_PROBLEM:
+            # TODO You need to implement some code here that will message elves
+            # when enough of them have a problem. As in the case of reindeer 
+            # delivering presents, you just need to get santa and the relevent 
+            # elves printing a message at approximately the same time.
+           
+            elf_host = body[:body.index(b':')].decode()
+            elf_port = int(body[body.index(b':')+1:].decode())
+
+            with self.server.lock:
+                self.server.elf_counter.append((elf_host, elf_port))
+
+                if len(self.server.elf_counter) >= self.server.elf_group:
+                    print("Santa is solving the elves problem")
+                    for host, port in self.server.elf_counter:
+                        sending_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                        sending_socket.connect((host, port))
+                        sending_socket.sendall(MSG_SORT_PROBLEM)
+                        sending_socket.close()
+                    self.server.elf_counter = []
+
         checkin(f"Santa")
 
 # A socketserver class to run santa as a constant server
