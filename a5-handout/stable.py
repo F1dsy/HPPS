@@ -24,22 +24,22 @@ class StableHandler(socketserver.StreamRequestHandler):
         if msg==MSG_HOLIDAY_OVER:
             reindeer_host = body[:body.index(b':')].decode()
             reindeer_port = int(body[body.index(b':')+1:].decode())
-           
-            if len(self.server.reindeer_counter) == self.server.num_reindeer-1:
-                print("All Reindeer are back from holiday")
-                sending_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                sending_socket.connect((reindeer_host, reindeer_port))
-                send_msg =  bytearray(MSG_NOTIFY)
-                send_msg.extend(f"-{self.server.santa_host}:{self.server.santa_port}".encode())
-                for host,port in self.server.reindeer_counter:
-                    send_msg.extend(f"-{host}:{port}".encode())
-                sending_socket.sendall(send_msg)
-                sending_socket.close()
-                self.server.reindeer_counter = []
+            with self.server.reindeer_lock:
+                if len(self.server.reindeer_counter) == self.server.num_reindeer-1:
+                    print("All Reindeer are back from holiday")
+                    sending_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                    sending_socket.connect((reindeer_host, reindeer_port))
+                    send_msg =  bytearray(MSG_NOTIFY)
+                    send_msg.extend(f"-{self.server.santa_host}:{self.server.santa_port}".encode())
+                    for host,port in self.server.reindeer_counter:
+                        send_msg.extend(f"-{host}:{port}".encode())
+                    sending_socket.sendall(send_msg)
+                    sending_socket.close()
+                    self.server.reindeer_counter = []
 
-            else:             
-                self.server.reindeer_counter.append((reindeer_host, reindeer_port))
-                print(f"{len(self.server.reindeer_counter)} Reindeer are back from holiday")
+                else:             
+                    self.server.reindeer_counter.append((reindeer_host, reindeer_port))
+                    print(f"{len(self.server.reindeer_counter)} Reindeer are back from holiday")
 
         
 
@@ -58,6 +58,7 @@ class StableServer(socketserver.ThreadingTCPServer):
         # TODO you must decide on any additional variables to set up here
 
         self.reindeer_counter = []
+        self.reindeer_lock = Lock()
  
 # Base stable function, to be called as a process
 def stable(my_host, my_port, santa_host, santa_port, num_reindeer):
