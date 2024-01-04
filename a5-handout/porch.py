@@ -30,7 +30,7 @@ class PorchHandler(socketserver.StreamRequestHandler):
                 self.server.elf_counter.append((elf_host, elf_port))
            
                 if len(self.server.elf_counter) >= self.server.elf_group:
-                    print("All elf are back from holiday")
+                    print("Group of elfs need help")
                     sending_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                     sending_socket.connect((elf_host, elf_port))
                     send_msg =  bytearray(MSG_NOTIFY)
@@ -43,7 +43,7 @@ class PorchHandler(socketserver.StreamRequestHandler):
 
                 else:             
                     self.server.elf_counter.append((elf_host, elf_port))
-                    print(f"{len(self.server.elf_counter)} Reindeer are back from holiday")
+                    print(f"{len(self.server.elf_counter)} Elf has recived help")
 
 
 # A socketserver class to run the porch as a constant server
