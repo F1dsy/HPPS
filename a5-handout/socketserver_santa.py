@@ -79,6 +79,7 @@ class SantaServer(socketserver.ThreadingTCPServer):
         # Setup the lists for collecting reindeer and elf addresses
         self.reindeer_counter = []
         self.elf_counter = []
+        self.lock = Lock()
 
 # Base santa function, to be called as a process
 def santa(host, port, num_reindeer, elf_group):
