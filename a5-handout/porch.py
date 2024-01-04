@@ -26,7 +26,7 @@ class PorchHandler(socketserver.StreamRequestHandler):
             elf_host = body[:body.index(b':')].decode()
             elf_port = int(body[body.index(b':')+1:].decode())
            
-            if len(self.server.elf_counter) == self.server.elf_group-1:
+            if len(self.server.elf_counter) >= self.server.elf_group:
                 print("All elf are back from holiday")
                 sending_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 sending_socket.connect((elf_host, elf_port))
