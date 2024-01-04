@@ -14,6 +14,28 @@ class StableHandler(socketserver.StreamRequestHandler):
         # then inform the last reindeer that it must inform the others and 
         # santa that it is time to deliver presents       
         pass
+        
+        msg = self.request.recv(MAX_MSG_LEN)
+
+        if b'-' in msg:
+            body = msg[msg.index(b'-')+1:]
+            msg = msg[:msg.index(b'-')]
+        
+        if msg==MSG_HOLIDAY_OVER:
+            reindeer_host = body[:body.index(b':')].decode()
+            reindeer_port = int(body[body.index(b':')+1:].decode())
+            if len(self.server.reindeer_counter) == self.server.num_reindeer:
+
+                sending_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                sending_socket.connect((reindeer_host, reindeer_port))
+                sending_socket.sendall(MSG_NOTIFY)
+                sending_socket.close()
+                self.server.reindeer_counter = []
+                
+            else:             
+                self.server.reindeer_counter.append((reindeer_host, reindeer_port))
+
+        
 
 # A socketserver class to run the stable as a constant server
 class StableServer(socketserver.ThreadingTCPServer):
@@ -28,6 +50,8 @@ class StableServer(socketserver.ThreadingTCPServer):
         self.santa_port = santa_port
 
         # TODO you must decide on any additional variables to set up here
+
+        self.reindeer_counter = 0
  
 # Base stable function, to be called as a process
 def stable(my_host, my_port, santa_host, santa_port, num_reindeer):
