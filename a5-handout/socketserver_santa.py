@@ -31,7 +31,7 @@ class SantaHandler(socketserver.StreamRequestHandler):
             reindeer_host = body[:body.index(b':')].decode()
             reindeer_port = int(body[body.index(b':')+1:].decode())
 
-            with self.server.lock:
+            with self.server.reindeer_lock:
                 self.server.reindeer_counter.append((reindeer_host, reindeer_port))
 
                 if len(self.server.reindeer_counter) == self.server.num_reindeer:
@@ -52,7 +52,7 @@ class SantaHandler(socketserver.StreamRequestHandler):
             elf_host = body[:body.index(b':')].decode()
             elf_port = int(body[body.index(b':')+1:].decode())
 
-            with self.server.lock:
+            with self.server.elf_lock:
                 self.server.elf_counter.append((elf_host, elf_port))
 
                 if len(self.server.elf_counter) >= self.server.elf_group:
@@ -79,7 +79,8 @@ class SantaServer(socketserver.ThreadingTCPServer):
         # Setup the lists for collecting reindeer and elf addresses
         self.reindeer_counter = []
         self.elf_counter = []
-        self.lock = Lock()
+        self.efl_lock = Lock()
+        self.reindeer_lock = Lock()
 
 # Base santa function, to be called as a process
 def santa(host, port, num_reindeer, elf_group):
