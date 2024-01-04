@@ -49,10 +49,15 @@ def wait_for_reply(me, listening_socket, my_host, my_port):
     if b'-' in msg:
         body = msg[msg.index(b'-')+1:]
         msg = msg[:msg.index(b'-')]
+        santa_host = body[:body.index(b':')].decode()
+        santa_port = int(body[body.index(b':')+1:].decode())
 
         if msg == MSG_NOTIFY:
+            sending_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sending_socket.connect((santa_host, santa_port))
+            sending_socket.sendall(MSG_DELIVER_PRESENTS)
+            sending_socket.close()
             for host, port in []:
-                sending_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 sending_socket.connect((host, port))
                 sending_socket.sendall(MSG_DELIVER_PRESENTS)
                 sending_socket.close()
