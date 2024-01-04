@@ -30,6 +30,8 @@ class StableHandler(socketserver.StreamRequestHandler):
                 sending_socket.connect((reindeer_host, reindeer_port))
                 send_msg =  bytearray(MSG_NOTIFY)
                 send_msg.extend(f"-{self.server.santa_host}:{self.server.santa_port}".encode())
+                for host,port in self.server.reindeer_counter:
+                    send_msg.extend(f"-{host}:{port}")
                 sending_socket.sendall(send_msg)
                 sending_socket.close()
                 self.server.reindeer_counter = []

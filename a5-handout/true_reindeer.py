@@ -41,26 +41,37 @@ def wait_for_reply(me, listening_socket, my_host, my_port):
     while msg != MSG_DELIVER_PRESENTS: 
         # Read from the connection
         msg = connection.recv(MAX_MSG_LEN)
+        body: list = []
+        if b'-' in msg:
+            body: list = msg[msg.index(b'-')+1:]
+            msg = msg[:msg.index(b'-')]
         # If we get something we didn't expect then abort
-        if msg != MSG_DELIVER_PRESENTS:
+        if msg != MSG_DELIVER_PRESENTS or msg != MSG_NOTIFY:
             print(f"Reindeer {me} recieved an unknown instruction")
             exit()
-    print(f"Reindeer {me} is delivering presents")
-    if b'-' in msg:
-        body = msg[msg.index(b'-')+1:]
-        msg = msg[:msg.index(b'-')]
-        santa_host = body[:body.index(b':')].decode()
-        santa_port = int(body[body.index(b':')+1:].decode())
+
+        host_list = body.split(b'-')
+        santa_host = host_list[0][:body.index(b':')].decode()
+        santa_port = int( host_list[0][body.index(b':')+1:].decode())
+        reindeers = []
+        for reindeer in host_list[1:]:
+            reindeers.append((reindeer[:body.index(b':')],reindeer[body.index(b':')+1:]))
 
         if msg == MSG_NOTIFY:
             sending_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             sending_socket.connect((santa_host, santa_port))
             sending_socket.sendall(MSG_DELIVER_PRESENTS)
             sending_socket.close()
-            for host, port in []:
+            for host, port in reindeers:
                 sending_socket.connect((host, port))
                 sending_socket.sendall(MSG_DELIVER_PRESENTS)
                 sending_socket.close()
+            msg = MSG_DELIVER_PRESENTS
+            
+
+    print(f"Reindeer {me} is delivering presents")
+   
+    
 
 # Base reindeer function, to be called as a process
 def reindeer(me, my_host, my_port, stable_host, stable_port):
