@@ -25,22 +25,25 @@ class PorchHandler(socketserver.StreamRequestHandler):
         if msg==MSG_PROBLEM:
             elf_host = body[:body.index(b':')].decode()
             elf_port = int(body[body.index(b':')+1:].decode())
-           
-            if len(self.server.elf_counter) >= self.server.elf_group:
-                print("All elf are back from holiday")
-                sending_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                sending_socket.connect((elf_host, elf_port))
-                send_msg =  bytearray(MSG_NOTIFY)
-                send_msg.extend(f"-{self.server.santa_host}:{self.server.santa_port}".encode())
-                for host,port in self.server.elf_counter:
-                    send_msg.extend(f"-{host}:{port}".encode())
-                sending_socket.sendall(send_msg)
-                sending_socket.close()
-                self.server.elf_counter = []
 
-            else:             
+            with self.server.elf_lock:
                 self.server.elf_counter.append((elf_host, elf_port))
-                print(f"{len(self.server.elf_counter)} Reindeer are back from holiday")
+           
+                if len(self.server.elf_counter) >= self.server.elf_group:
+                    print("All elf are back from holiday")
+                    sending_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                    sending_socket.connect((elf_host, elf_port))
+                    send_msg =  bytearray(MSG_NOTIFY)
+                    send_msg.extend(f"-{self.server.santa_host}:{self.server.santa_port}".encode())
+                    for host,port in self.server.elf_counter:
+                        send_msg.extend(f"-{host}:{port}".encode())
+                    sending_socket.sendall(send_msg)
+                    sending_socket.close()
+                    self.server.elf_counter = []
+
+                else:             
+                    self.server.elf_counter.append((elf_host, elf_port))
+                    print(f"{len(self.server.elf_counter)} Reindeer are back from holiday")
 
 
 # A socketserver class to run the porch as a constant server
