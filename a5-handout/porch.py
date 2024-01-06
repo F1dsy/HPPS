@@ -41,10 +41,6 @@ class PorchHandler(socketserver.StreamRequestHandler):
                     sending_socket.close()
                     self.server.elf_counter = []
 
-                else:             
-                    self.server.elf_counter.append((elf_host, elf_port))
-                    print(f"{len(self.server.elf_counter)} Elf has recived help")
-
 
 # A socketserver class to run the porch as a constant server
 class PorchServer(socketserver.ThreadingTCPServer):

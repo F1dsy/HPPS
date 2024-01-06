@@ -25,7 +25,11 @@ class StableHandler(socketserver.StreamRequestHandler):
             reindeer_host = body[:body.index(b':')].decode()
             reindeer_port = int(body[body.index(b':')+1:].decode())
             with self.server.reindeer_lock:
-                if len(self.server.reindeer_counter) == self.server.num_reindeer-1:
+
+                self.server.reindeer_counter.append((reindeer_host, reindeer_port))    
+                print(f"{len(self.server.reindeer_counter)} Reindeer are back from holiday")
+
+                if len(self.server.reindeer_counter) == self.server.num_reindeer:
                     print("All Reindeer are back from holiday")
                     sending_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                     sending_socket.connect((reindeer_host, reindeer_port))
@@ -37,11 +41,6 @@ class StableHandler(socketserver.StreamRequestHandler):
                     sending_socket.close()
                     self.server.reindeer_counter = []
 
-                else:             
-                    self.server.reindeer_counter.append((reindeer_host, reindeer_port))
-                    print(f"{len(self.server.reindeer_counter)} Reindeer are back from holiday")
-
-        
 
 # A socketserver class to run the stable as a constant server
 class StableServer(socketserver.ThreadingTCPServer):
