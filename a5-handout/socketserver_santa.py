@@ -74,7 +74,7 @@ class SantaServer(socketserver.ThreadingTCPServer):
         # Setup the lists for collecting reindeer and elf addresses
         self.reindeer_counter = []
         self.elf_counter = []
-        self.efl_lock = Lock()
+        self.elf_lock = Lock()
         self.reindeer_lock = Lock()
 
 # Base santa function, to be called as a process
