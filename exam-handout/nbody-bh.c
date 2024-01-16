@@ -272,14 +272,44 @@ void nbody(int n, struct particle *ps, int steps, double theta)
     // determine the minimum and maximum coordinates), then compute
     // accelerations and update velocities, then update positions.
 
-    struct bh_node *bh = bh_new(-10.0, 10);
+    double min = ps[0].pos.x;
+    double max = ps[0].pos.x;
+    for (int32_t i = 1; i < n; i++)
+    {
+      if (ps[i].pos.x < min)
+      {
+        min = ps[i].pos.x;
+      }
+      else if (ps[i].pos.x > max)
+      {
+        max = ps[i].pos.x;
+      }
+      if (ps[i].pos.y < min)
+      {
+        min = ps[i].pos.y;
+      }
+      else if (ps[i].pos.y > max)
+      {
+        max = ps[i].pos.y;
+      }
+      if (ps[i].pos.z < min)
+      {
+        min = ps[i].pos.z;
+      }
+      else if (ps[i].pos.z > max)
+      {
+        max = ps[i].pos.z;
+      }
+    }
+
+    struct bh_node *bh = bh_new(min, max);
 
     for (int32_t i = 0; i < n; i++)
     {
       bh_insert(bh, ps, i);
     }
 
-#pragma omp parallel for
+#pragma omp parallel for schedule(dynamic)
     for (int32_t i = 0; i < n; i++)
     {
       struct vec3 acc = {0, 0, 0};

@@ -19,9 +19,9 @@ fi
 PARTICLES=$1
 
 FPS=24 # Frames per second
-FRAMES=300 # Total frames
-NBODY=./nbody-bh # Simulation program
-STEPS_PER_FRAME=4 # Steps done per frame
+FRAMES=10 # Total frames
+NBODY=./nbody # Simulation program
+STEPS_PER_FRAME=1 # Steps done per frame
 
 if ! which gnuplot >/dev/null; then
     echo "You must install gnuplot."
